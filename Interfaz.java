@@ -11,7 +11,6 @@ import java.util.concurrent.Semaphore;
 
 public class Interfaz extends JFrame {
     private Memoria memoriaPrincipal;
-
     private JPanel inicio;
     private JPanel aux;
     private JTable tablaProcesosEnEspera;
@@ -268,9 +267,14 @@ public class Interfaz extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String aux = txt_nuevoTiempo.getText();
+                int nuevo;
                 try {
-                    memoriaPrincipal.setUnTiempo(Integer.parseInt(aux));
-                    lbl_infoUntiempo.setText("1 tiempo = " + memoriaPrincipal.getUnTiempo() + " ms.");
+                    nuevo = Integer.parseInt(aux);
+                    if(nuevo>0){
+                        memoriaPrincipal.setUnTiempo(nuevo);
+                        lbl_infoUntiempo.setText("1 tiempo = " + memoriaPrincipal.getUnTiempo() + " ms.");
+                    } else
+                        JOptionPane.showMessageDialog(null, "El valor minimo es 1 ms", "Error", JOptionPane.WARNING_MESSAGE);
                 } catch (NumberFormatException exception){
                     JOptionPane.showMessageDialog(null, "El formato no es admitido", "Error", JOptionPane.ERROR_MESSAGE);
                 } finally {
@@ -289,8 +293,11 @@ public class Interfaz extends JFrame {
                 int nuevo;
                 try {
                     nuevo = Integer.parseInt(aux);
-                    memoriaPrincipal.setRegeneracion(nuevo);
-                    lbl_infRegeneracion.setText("Generación de procesos cada " + memoriaPrincipal.getRegeneracion() + " ms.");
+                    if(nuevo>0){
+                        memoriaPrincipal.setRegeneracion(nuevo);
+                        lbl_infRegeneracion.setText("Generación de procesos cada " + memoriaPrincipal.getRegeneracion() + " ms.");
+                    } else
+                        JOptionPane.showMessageDialog(null, "El valor minimo es 1 ms.", "Error", JOptionPane.WARNING_MESSAGE);
                 } catch (NumberFormatException exception){
                     JOptionPane.showMessageDialog(null, "El formato no es admitido", "Error", JOptionPane.ERROR_MESSAGE);
                 } finally {
@@ -364,7 +371,6 @@ class Principal {
 
         Interfaz nuevaVentana = new Interfaz(memoriaPrincipal);
         nuevaVentana.setVisible(true);
-
 
         ProcessGenerator Hilo1 = new ProcessGenerator(procesosListos,mutex,memoriaPrincipal,nuevaVentana);
         OperativeSystem Hilo2 = new OperativeSystem(procesosListos,mutex,memoriaPrincipal,nuevaVentana);
@@ -512,7 +518,7 @@ class ProcessGenerator extends Thread{  //Se encarga de estar generando procesos
 class OperativeSystem extends Thread{  //Decide quien toma el CPU de acuerdo al algoritmo: Shortest Remaining Time
     private Memoria memoriaPrincipal;
     private Semaphore mutex;
-    private java.util.List<Proceso> procesosListos;  //Procesos que ya tienen memoria y sus tiempos
+    private List<Proceso> procesosListos;  //Procesos que ya tienen memoria y sus tiempos
     private Interfaz nuevaVentana;
 
     public OperativeSystem(List<Proceso> procesosListos, Semaphore mutex, Memoria memoriaPrincipal, Interfaz nuevaVentana){
